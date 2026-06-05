@@ -5,13 +5,6 @@ import { MAX_FILE_SIZE } from '@/lib/utils';
 
 export const maxDuration = 60;
 
-const FORMAT_SIZES = {
-  post:  { w: 1024, h: 1024, api: '1024x1024' },
-  story: { w: 1024, h: 1536, api: '1024x1536' },
-} as const;
-
-type Format = keyof typeof FORMAT_SIZES;
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -45,27 +38,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const size = FORMAT_SIZES[(format as Format)] ?? FORMAT_SIZES.post;
-
-    // Convert to PNG and resize to the target Instagram format
     const inputBuffer = Buffer.from(imageBase64, 'base64');
-    const pngBuffer = await sharp(inputBuffer)
-      .resize(size.w, size.h, { fit: 'cover', position: 'centre' })
+
+    // The OpenAI edit endpoint only reliably accepts 1024x1024 PNG.
+    // We always send square; for Story we extend the result afterwards.
+    const squarePng = await sharp(inputBuffer)
+      .resize(1024, 1024, { fit: 'cover', position: 'centre' })
       .png()
       .toBuffer();
 
-    const arrayBuffer = pngBuffer.buffer.slice(
-      pngBuffer.byteOffset,
-      pngBuffer.byteOffset + pngBuffer.byteLength
-    ) as ArrayBuffer;
-    const blob = new Blob([arrayBuffer], { type: 'image/png' });
+    const squareBlob = new Blob(
+      [squarePng.buffer.slice(squarePng.byteOffset, squarePng.byteOffset + squarePng.byteLength) as ArrayBuffer],
+      { type: 'image/png' }
+    );
 
     const formData = new FormData();
     formData.append('model', 'gpt-image-1');
-    formData.append('image[]', blob, 'image.png');
+    formData.append('image[]', squareBlob, 'image.png');
     formData.append('prompt', style.prompt);
     formData.append('n', '1');
-    formData.append('size', size.api);
+    formData.append('size', '1024x1024');
 
     const response = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
@@ -86,7 +78,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No image returned from API' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, imageBase64: b64, mimeType: 'image/png', format });
+    let finalBase64 = b64;
+
+    // For Story (9:16): extend the 1024x1024 result to 1024×1820 by placing it
+    // centered over a blurred version of itself — the classic Instagram story look.
+    if (format === 'story') {
+      const editedBuf = Buffer.from(b64, 'base64');
+      const storyH = 1820; // 1024 × (16/9) ≈ 1820
+
+      // Blurred, scaled background
+      const bgBuf = await sharp(editedBuf)
+        .resize(1024, storyH, { fit: 'cover', position: 'centre' })
+        .blur(24)
+        .png()
+        .toBuffer();
+
+      // Centre the edited square over it
+      const top = Math.round((storyH - 1024) / 2);
+      const storyBuf = await sharp(bgBuf)
+        .composite([{ input: editedBuf, top, left: 0 }])
+        .png()
+        .toBuffer();
+
+      finalBase64 = storyBuf.toString('base64');
+    }
+
+    return NextResponse.json({
+      success: true,
+      imageBase64: finalBase64,
+      mimeType: 'image/png',
+      format,
+    });
   } catch (err) {
     console.error('[edit-image] Unhandled error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
