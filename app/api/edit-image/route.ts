@@ -5,10 +5,17 @@ import { MAX_FILE_SIZE } from '@/lib/utils';
 
 export const maxDuration = 60;
 
+const FORMAT_SIZES = {
+  post:  { w: 1024, h: 1024, api: '1024x1024' },
+  story: { w: 1024, h: 1536, api: '1024x1536' },
+} as const;
+
+type Format = keyof typeof FORMAT_SIZES;
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { imageBase64, mimeType, styleId } = body;
+    const { imageBase64, mimeType, styleId, format = 'post' } = body;
 
     if (!imageBase64 || typeof imageBase64 !== 'string') {
       return NextResponse.json({ error: 'Missing imageBase64' }, { status: 400 });
@@ -33,17 +40,17 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'IMAGE_EDITING_NOT_CONFIGURED', message: 'Add OPENAI_API_KEY to environment variables.' },
+        { error: 'IMAGE_EDITING_NOT_CONFIGURED' },
         { status: 503 }
       );
     }
 
-    // Decode base64 to raw buffer
-    const inputBuffer = Buffer.from(imageBase64, 'base64');
+    const size = FORMAT_SIZES[(format as Format)] ?? FORMAT_SIZES.post;
 
-    // Convert to PNG — OpenAI's edit endpoint only accepts PNG
+    // Convert to PNG and resize to the target Instagram format
+    const inputBuffer = Buffer.from(imageBase64, 'base64');
     const pngBuffer = await sharp(inputBuffer)
-      .resize(1024, 1024, { fit: 'cover', position: 'centre' })
+      .resize(size.w, size.h, { fit: 'cover', position: 'centre' })
       .png()
       .toBuffer();
 
@@ -58,7 +65,7 @@ export async function POST(req: NextRequest) {
     formData.append('image[]', blob, 'image.png');
     formData.append('prompt', style.prompt);
     formData.append('n', '1');
-    formData.append('size', '1024x1024');
+    formData.append('size', size.api);
 
     const response = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
@@ -79,7 +86,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No image returned from API' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, imageBase64: b64, mimeType: 'image/png' });
+    return NextResponse.json({ success: true, imageBase64: b64, mimeType: 'image/png', format });
   } catch (err) {
     console.error('[edit-image] Unhandled error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

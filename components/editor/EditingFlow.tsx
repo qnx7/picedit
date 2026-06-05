@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { ImageUpload, type UploadedImage } from '@/components/upload/ImageUpload';
 import { StyleSelector } from '@/components/styles/StyleSelector';
+import { FormatSelector, type ImageFormat } from '@/components/editor/FormatSelector';
 import { ResultPreview } from '@/components/editor/ResultPreview';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -40,6 +41,7 @@ export function EditingFlow() {
   const [step, setStep] = useState<Step>('upload');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<PresetStyle | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<ImageFormat>('post');
   const [results, setResults] = useState<EditedResult[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiNotConfigured, setApiNotConfigured] = useState(false);
@@ -80,6 +82,7 @@ export function EditingFlow() {
             imageBase64: base64,
             mimeType: img.file.type,
             styleId: selectedStyle.id,
+            format: selectedFormat,
           }),
         });
 
@@ -128,6 +131,7 @@ export function EditingFlow() {
     images.forEach((img) => URL.revokeObjectURL(img.preview));
     setImages([]);
     setSelectedStyle(null);
+    setSelectedFormat('post');
     setResults([]);
     setStep('upload');
     setApiNotConfigured(false);
@@ -209,6 +213,16 @@ export function EditingFlow() {
                 {images.length !== 1 ? 's' : ''}
               </p>
             </div>
+
+            {/* Format picker */}
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-gray-700">Format</p>
+              <FormatSelector selected={selectedFormat} onChange={setSelectedFormat} />
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-gray-700">Style</p>
+            </div>
             <StyleSelector
               selectedStyleId={selectedStyle?.id ?? null}
               onSelect={setSelectedStyle}
@@ -224,7 +238,7 @@ export function EditingFlow() {
                 </div>
                 <Button onClick={handleApplyStyle} className="w-full sm:w-auto">
                   <Sparkles className="w-4 h-4" />
-                  Apply style to {images.length} image{images.length !== 1 ? 's' : ''}
+                  Apply as {selectedFormat === 'story' ? 'Story (9:16)' : 'Post (1:1)'} · {images.length} image{images.length !== 1 ? 's' : ''}
                 </Button>
               </div>
             )}
@@ -282,6 +296,7 @@ export function EditingFlow() {
             <ResultPreview
               results={results}
               styleName={selectedStyle?.name ?? ''}
+              format={selectedFormat}
             />
           </div>
         )}

@@ -9,9 +9,12 @@ import { useState } from 'react';
 interface ResultPreviewProps {
   results: EditedResult[];
   styleName: string;
+  format: 'post' | 'story';
 }
 
-export function ResultPreview({ results, styleName }: ResultPreviewProps) {
+export function ResultPreview({ results, styleName, format }: ResultPreviewProps) {
+  // post = 1:1 square, story = 9:16 portrait
+  const aspectClass = format === 'story' ? 'aspect-[9/16]' : 'aspect-square';
   const [compareId, setCompareId] = useState<string | null>(null);
 
   if (results.length === 0) return null;
@@ -51,7 +54,7 @@ export function ResultPreview({ results, styleName }: ResultPreviewProps) {
             className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
           >
             {/* Image area */}
-            <div className="relative aspect-square bg-gray-50">
+            <div className={cn('relative bg-gray-50', aspectClass)}>
               {/* Loading skeleton */}
               {result.status === 'processing' && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-purple-50 to-pink-50">
