@@ -2,6 +2,16 @@
 
 A modern web app to apply AI-powered Instagram-style photo presets to your images.
 
+## 🌐 Live site
+
+Deployed automatically to GitHub Pages on every push:
+
+**https://qnx7.github.io/picedit/**
+
+No setup needed to browse — upload, style selection, previews and downloads all
+work. The AI editing step shows a "not configured" notice until an API key is
+added (see below).
+
 ## Features
 
 - Upload one or multiple images (drag & drop supported)
@@ -61,15 +71,40 @@ OPENAI_API_KEY=sk-...
 
 ---
 
-## Deploying to Vercel
+## Deployment (GitHub Pages — automatic)
 
-1. Push this repository to GitHub
-2. Import the project at [https://vercel.com/new](https://vercel.com/new)
-3. In the Vercel dashboard, go to **Settings → Environment Variables**
-4. Add `OPENAI_API_KEY` with your key
-5. Deploy
+This repo ships with a GitHub Actions workflow (`.github/workflows/deploy.yml`)
+that builds the static site and publishes it to GitHub Pages on every push to
+the default branch. **No tokens or external accounts are required** — it uses
+the built-in `GITHUB_TOKEN` and auto-enables Pages.
 
-Vercel will automatically detect Next.js and configure everything.
+The site builds as a fully static export (`output: 'export'`) served from
+`https://qnx7.github.io/picedit/`.
+
+### Enabling real AI editing on the live site (optional)
+
+Because GitHub Pages has no server, editing runs in the browser. To turn it on:
+
+1. Go to your repo → **Settings → Secrets and variables → Actions**
+2. Add a secret named `NEXT_PUBLIC_OPENAI_API_KEY` with your OpenAI key
+3. Re-run the **Deploy to GitHub Pages** workflow
+
+> ⚠️ A `NEXT_PUBLIC_` key is embedded in the static bundle and visible to anyone
+> using the site. Only use a key with a strict spending cap, or prefer the Vercel
+> option below for a hidden server-side key.
+
+## Alternative: Deploy on Vercel (hidden server-side key)
+
+For production with a private key, deploy on Vercel instead:
+
+1. Import the project at [https://vercel.com/new](https://vercel.com/new)
+2. Add `NEXT_PUBLIC_OPENAI_API_KEY` (or restore a server API route and use
+   `OPENAI_API_KEY`) under **Settings → Environment Variables**
+3. Deploy
+
+Vercel auto-detects Next.js. To keep the key fully server-side, re-add an API
+route (see `lib/image-editing.ts`, which already contains the server logic) and
+point the client at it instead of calling OpenAI directly.
 
 ---
 
@@ -77,8 +112,8 @@ Vercel will automatically detect Next.js and configure everything.
 
 ```
 picedit/
+├── .github/workflows/deploy.yml  # Auto-deploy to GitHub Pages
 ├── app/
-│   ├── api/edit-image/route.ts   # API route — POST /api/edit-image
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx                  # Entry point (hero → editor)
@@ -97,7 +132,8 @@ picedit/
 │   └── upload/
 │       └── ImageUpload.tsx       # Drag-and-drop uploader with previews
 ├── lib/
-│   ├── image-editing.ts          # AI provider logic (swap in your provider here)
+│   ├── client-edit.ts            # Browser-side editing call (used by static site)
+│   ├── image-editing.ts          # Server-side AI provider logic + shared types
 │   ├── styles.ts                 # All 10 preset style definitions + prompts
 │   └── utils.ts                  # cn(), formatFileSize(), validation helpers
 ├── .env.example

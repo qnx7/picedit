@@ -1,13 +1,24 @@
-name: Deploy to Vercel
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches:
-      - main
       - claude/instagram-preset-editor-5oust
+  workflow_dispatch:
+
+# Permissions required for the deploy-pages action to publish via OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment.
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,10 +28,38 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # Enables Pages on the repo automatically (no manual settings needed).
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy to Vercel
-        run: npx vercel --yes --token ${{ secrets.VERCEL_TOKEN }} --prod
+      - name: Build static site
+        run: npm run build
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          GITHUB_PAGES: 'true'
+          # Optional: set a NEXT_PUBLIC_OPENAI_API_KEY repo secret to enable
+          # real AI editing. Without it the app shows a "not configured" notice.
+          NEXT_PUBLIC_OPENAI_API_KEY: ${{ secrets.NEXT_PUBLIC_OPENAI_API_KEY }}
+
+      - name: Disable Jekyll (serve _next assets)
+        run: touch ./out/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
