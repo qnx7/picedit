@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
 import { getStyleById } from '@/lib/styles';
 import { MAX_FILE_SIZE } from '@/lib/utils';
 
@@ -37,20 +38,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Decode base64 → binary for the multipart upload
-    const byteString = atob(imageBase64);
-    const bytes = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) {
-      bytes[i] = byteString.charCodeAt(i);
-    }
+    // Decode base64 to raw buffer
+    const inputBuffer = Buffer.from(imageBase64, 'base64');
 
-    // Use gpt-image-1 edit endpoint — accepts JPEG/PNG/WebP without transparency requirement
-    const ext = mimeType === 'image/jpeg' || mimeType === 'image/jpg' ? 'jpg' : mimeType === 'image/webp' ? 'webp' : 'png';
-    const blob = new Blob([bytes], { type: mimeType });
+    // Convert to PNG — OpenAI's edit endpoint only accepts PNG
+    const pngBuffer = await sharp(inputBuffer)
+      .resize(1024, 1024, { fit: 'cover', position: 'centre' })
+      .png()
+      .toBuffer();
+
+    const arrayBuffer = pngBuffer.buffer.slice(
+      pngBuffer.byteOffset,
+      pngBuffer.byteOffset + pngBuffer.byteLength
+    ) as ArrayBuffer;
+    const blob = new Blob([arrayBuffer], { type: 'image/png' });
 
     const formData = new FormData();
     formData.append('model', 'gpt-image-1');
-    formData.append('image[]', blob, `image.${ext}`);
+    formData.append('image[]', blob, 'image.png');
     formData.append('prompt', style.prompt);
     formData.append('n', '1');
     formData.append('size', '1024x1024');
@@ -63,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      const msg = errData?.error?.message ?? `API error ${response.status}`;
+      const msg = errData?.error?.message ?? `OpenAI API error ${response.status}`;
       console.error('[edit-image] OpenAI error:', msg);
       return NextResponse.json({ error: msg }, { status: 500 });
     }
