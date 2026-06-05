@@ -21,7 +21,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-gray-900 via-gray-800 to-gray-700',
     accentColor: '#6b7280',
     prompt:
-      'Edit this image into a dark, cinematic Instagram aesthetic. Increase contrast, deepen shadows, reduce oversaturated colors, add a moody premium look, keep the subject realistic and natural, preserve facial identity and details.',
+      'Enhance this photo with a dark moody color grade. Deepen the shadows slightly, reduce brightness by a small amount, add subtle cool undertones, increase contrast gently, and reduce oversaturation. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading and lighting mood. The result should look like a professional dark Instagram edit.',
   },
   {
     id: 'clean-minimal',
@@ -32,7 +32,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-slate-100 via-white to-gray-100',
     accentColor: '#94a3b8',
     prompt:
-      'Edit this image into a clean minimalist Instagram aesthetic. Bright whites, airy light, soft shadows, very low saturation, clean modern look, refined lifestyle feel, preserve all natural details and subject identity.',
+      'Enhance this photo with a clean minimal color grade. Slightly brighten the image, lift the shadows a touch, reduce saturation gently for a calm airy look, and soften highlights. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading and lighting. The result should look like a clean bright minimal Instagram photo.',
   },
   {
     id: 'luxury-beige',
@@ -43,7 +43,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-amber-100 via-orange-50 to-yellow-100',
     accentColor: '#d97706',
     prompt:
-      'Edit this image into a luxury beige Instagram aesthetic. Use warm neutral tones, soft highlights, creamy shadows, elegant minimal color grading, premium lifestyle look, realistic skin tones, preserve all original details.',
+      'Enhance this photo with a warm beige luxury color grade. Add subtle warm golden tones, soften the highlights to a creamy look, bring up shadows slightly with warm fill, and reduce cool colors. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading. The result should feel like a high-end lifestyle Instagram photo.',
   },
   {
     id: 'film-grain',
@@ -54,7 +54,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-yellow-900 via-amber-800 to-orange-900',
     accentColor: '#b45309',
     prompt:
-      'Edit this image into a film grain analog photo style. Add subtle grain texture, faded film tones, slight color shift, 35mm aesthetic, nostalgic warmth, soft vignette, preserve original subject and composition.',
+      'Enhance this photo with a subtle analog film color grade. Add very light grain texture, slightly fade the blacks, add a gentle warm color shift, and soften contrast slightly for a film photography feel. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading and texture. The result should look like it was shot on 35mm film.',
   },
   {
     id: 'streetwear-editorial',
@@ -65,7 +65,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-zinc-900 via-zinc-700 to-stone-600',
     accentColor: '#71717a',
     prompt:
-      'Edit this image into a streetwear editorial photo style. Add urban contrast, sharp details, slightly desaturated tones, fashion magazine look, clean shadows, realistic textures, preserve the original subject.',
+      'Enhance this photo with an editorial streetwear color grade. Sharpen the image slightly, add a touch more contrast, desaturate colors subtly for a fashion magazine tone, and deepen shadows just a little. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading. The result should look like a professional fashion editorial photo.',
   },
   {
     id: 'soft-glow',
@@ -76,7 +76,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-pink-200 via-purple-100 to-indigo-100',
     accentColor: '#a78bfa',
     prompt:
-      'Edit this image into a soft glow Instagram aesthetic. Add a gentle dreamy glow, soft pastel tones, light bokeh, warm luminous highlights, heavenly soft light, feminine and delicate feel, preserve original subject and details.',
+      'Enhance this photo with a soft dreamy glow color grade. Gently brighten highlights, add very subtle warm pink or lavender tones, slightly soften the overall image, and lift shadows for an airy glowing look. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading and soft light. The result should feel dreamy and soft like a high-end Instagram photo.',
   },
   {
     id: 'moody-night',
@@ -87,7 +87,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-blue-950 via-indigo-900 to-violet-900',
     accentColor: '#4f46e5',
     prompt:
-      'Edit this image into a moody night Instagram aesthetic. Deep blue and teal tones, high contrast, dramatic shadows, city night atmosphere, cool color grading, cinematic mood, preserve subject identity and details.',
+      'Enhance this photo with a moody night color grade. Add subtle cool blue and teal tones, deepen shadows slightly, increase contrast a touch, and reduce warm colors a little. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading. The result should feel like a cinematic nighttime Instagram photo.',
   },
   {
     id: 'high-contrast',
@@ -98,7 +98,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-red-600 via-orange-500 to-yellow-400',
     accentColor: '#ef4444',
     prompt:
-      'Edit this image with high contrast photo editing. Punch up the blacks and whites, increase color vibrancy, sharp crisp details, bold tones, graphic editorial look, strong visual impact, preserve subject realism.',
+      'Enhance this photo with a punchy high-contrast color grade. Increase contrast moderately, deepen blacks slightly, boost color vibrancy a little, and sharpen the image subtly. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading. The result should look bold and vibrant like a professional Instagram photo with strong visual impact.',
   },
   {
     id: 'vintage-warm',
@@ -109,7 +109,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-orange-400 via-amber-300 to-yellow-300',
     accentColor: '#f59e0b',
     prompt:
-      'Edit this image into a vintage warm Instagram aesthetic. Golden warm tones, sun-faded effect, slight orange-yellow color cast, retro film warmth, nostalgic summer feel, soft highlights, preserve all original details.',
+      'Enhance this photo with a warm vintage color grade. Add a gentle golden-orange warmth, slightly fade the blacks, lift highlights to a warm glow, and add very subtle retro tones. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading. The result should feel warm and sun-kissed like a nostalgic golden hour Instagram photo.',
   },
   {
     id: 'instagram-model',
@@ -120,7 +120,7 @@ export const PRESET_STYLES: PresetStyle[] = [
     gradient: 'from-rose-400 via-pink-300 to-fuchsia-300',
     accentColor: '#ec4899',
     prompt:
-      'Edit this image into a polished Instagram model aesthetic. Smooth vibrant tones, beautiful skin enhancement, soft but defined lighting, social media ready look, flattering color grading, glamorous yet natural, preserve facial identity.',
+      'Enhance this photo with a polished Instagram model color grade. Brighten the image slightly, smooth and even out skin tones subtly, add a gentle warm glow to highlights, boost colors a little for a vibrant flattering look. Keep everything in the photo exactly as it is — same people, same scene, same composition. Only adjust the color grading and light. The result should look polished and social-media ready.',
   },
 ];
 
