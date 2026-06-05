@@ -7,7 +7,6 @@ import { ResultPreview } from '@/components/editor/ResultPreview';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { type PresetStyle } from '@/lib/styles';
-import { editImageClient } from '@/lib/client-edit';
 import {
   Sparkles,
   RotateCcw,
@@ -74,15 +73,19 @@ export function EditingFlow() {
 
       try {
         const base64 = await fileToBase64(img.file);
-        // Editing runs client-side so the app works on a static host.
-        const data = await editImageClient({
-          imageBase64: base64,
-          mimeType: img.file.type,
-          prompt: selectedStyle.prompt,
-          styleId: selectedStyle.id,
+        const res = await fetch('/api/edit-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: base64,
+            mimeType: img.file.type,
+            styleId: selectedStyle.id,
+          }),
         });
 
-        if (!data.success) {
+        const data = await res.json();
+
+        if (!res.ok) {
           if (data.error === 'IMAGE_EDITING_NOT_CONFIGURED') {
             setApiNotConfigured(true);
             // Mark remaining as error
